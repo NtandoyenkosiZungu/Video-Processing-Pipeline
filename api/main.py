@@ -23,7 +23,7 @@ def validate_video_file(file: UploadFile) -> bool:
     """
 
     allowed_types = {
-        "videp/mp4",
+        "video/mp4",
         "video/x-matroska", #.mkv
         "video/quicktime", #.mov
         "video/x-msvideo", #.avi
@@ -47,7 +47,7 @@ def save_upload(file: UploadFile, job_id: str) -> str:
     #create destination directory
     os.makedirs(dest_folder, exist_ok=True)
 
-    dest_path = os.path(dest_folder, f"original{ext}")
+    dest_path = os.path.join(dest_folder, f"original{ext}")
 
     #Write file to disk
     with open(dest_path, "wb") as buffer:
@@ -65,7 +65,23 @@ async def root():
 #POST endpoint for receiving video file
 @app.post("/upload")
 async def upload_file(file: UploadFile):
-    return 0
+    #validate file upload
+    if not validate_video_file(file):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type: {file.content_type}. Must be a video."
+        )
+
+    #Generate job id
+    job_id = str(uuid.uuid4())
+
+    file_path = save_upload(file, job_id)
+
+    return {
+        "job_id": job_id,
+        "status": "queued",
+        "file_path": file_path
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
