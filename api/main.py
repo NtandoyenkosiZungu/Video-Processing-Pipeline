@@ -6,6 +6,9 @@ import os
 from fastapi import FastAPI, UploadFile, HTTPException
 from pathlib import Path
 
+
+from core import database
+
 #initialize FastAPI instance
 app = FastAPI(title="Video Processing Pipeline", version="1.0.0")
 
@@ -83,5 +86,14 @@ async def upload_file(file: UploadFile):
         "file_path": file_path
     }
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+#GET - Test functions endpoint
+@app.get("/testdb")
+async def call_database():
+    try:
+        database.init_db()
+        return {"message" : "database successfully initialized"}
+    except Exception as e:
+        return {"message" : f"failed to initialize database due to {str(e)}"}
+
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
