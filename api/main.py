@@ -6,7 +6,7 @@ import os
 from fastapi import FastAPI, UploadFile, HTTPException
 from pathlib import Path
 
-
+from core.models import Job, JobStatus
 from core import database
 
 #initialize FastAPI instance
@@ -80,9 +80,21 @@ async def upload_file(file: UploadFile):
 
     file_path = save_upload(file, job_id)
 
+    #Create the job object
+    job = Job(
+        job_id= job_id,
+        status= JobStatus.QUEUED,
+        raw_file_path= file_path,
+        output_path= None,
+        error_message= None
+    )
+
+    #Store job data into the database
+    database.create_job(job=job)
+
     return {
         "job_id": job_id,
-        "status": "queued",
+        "status": JobStatus.QUEUED,
         "file_path": file_path
     }
 
