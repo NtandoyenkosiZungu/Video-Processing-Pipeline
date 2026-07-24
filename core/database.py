@@ -58,6 +58,10 @@ def init_db():
     print("init_db ran successfully")
 
 def create_job(job: Job):
+    """
+    Records Job information and writes it to the database
+    """
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -75,6 +79,9 @@ def create_job(job: Job):
     print("Job creation successful")
 
 def get_job(job_id: str):
+    """
+    Retrieves the Job from the database using the job_id
+    """
     connection = get_connection()
     cursor = connection.cursor()
 
