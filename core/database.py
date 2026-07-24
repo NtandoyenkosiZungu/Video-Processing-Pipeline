@@ -56,3 +56,48 @@ def init_db():
     cursor.close()
     connection.close()
     print("init_db ran successfully")
+
+def create_job(job: Job):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO jobs (job_id, status, raw_file_path, output_path, error_message, created_at, updated_at) 
+        VALUES(%s, %s, %s, %s, %s, %s, %s)
+        """,
+        (job.job_id, job.status, job.raw_file_path, job.output_path, job.error_message, job.created_at, job.updated_at)
+    )
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    print("Job creation successful")
+
+def get_job(job_id: str):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT * FROM jobs WHERE job_id = %s,
+        """,
+        (job_id)
+    )
+
+    row = cursor.fetchone()
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    if row == None:
+        return None
+
+    return Job(
+        job_id= row["job_id"],
+        status= row["status"],
+        raw_file_path= row["raw_file_path"],
+        output_path= row["output_path"],
+        error_message= row["error_message"]
+    )
